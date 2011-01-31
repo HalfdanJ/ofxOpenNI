@@ -31,8 +31,11 @@ public:
 	xn::UserGenerator& getXnUserGenerator();
 	
 	ofxTrackedUser* getTrackedUser(int nUserNum);
+	ofxTrackedUser* getUserWithId(int id);
 	
 	std::vector<ofxTrackedUser*> getTrackedUsers();
+	std::vector<ofxTrackedUser*> getFoundUsers();
+
 
 
 private:	

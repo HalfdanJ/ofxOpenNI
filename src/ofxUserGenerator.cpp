@@ -132,6 +132,7 @@ bool ofxUserGenerator::setup(ofxOpenNIContext* pContext, ofxDepthGenerator* pDep
 		return false;
 	}
 	
+		
 	depth_generator = pDepthGenerator;
 	context			= pContext;
 	XnStatus result = XN_STATUS_OK;
@@ -262,7 +263,7 @@ void ofxUserGenerator::drawScene(){
 			}		
 			
 			if (*depth != 0){	
-				float d =  *depth/10.0;
+				float d =  *depth/15.0;
 				green = d * Colors[nColorID][0]; 
 				red = d * Colors[nColorID][1];
 				blue = d * Colors[nColorID][2];
@@ -304,6 +305,16 @@ ofxTrackedUser* ofxUserGenerator::getTrackedUser(int nUserNum) {
 	return found_user;
 }
 
+ofxTrackedUser* ofxUserGenerator::getUserWithId(int id){
+	std::vector<ofxTrackedUser*>::iterator it = tracked_users.begin();
+	while(it != tracked_users.end()) {
+		if( (*it)->id == id) {
+			return *it;
+		}			
+	}
+	return nil;	
+}
+
 std::vector<ofxTrackedUser*> ofxUserGenerator::getTrackedUsers() {
 	std::vector<ofxTrackedUser*> found;
 	std::vector<ofxTrackedUser*>::iterator it = tracked_users.begin();
@@ -317,6 +328,22 @@ std::vector<ofxTrackedUser*> ofxUserGenerator::getTrackedUsers() {
 }
 
 
+
+std::vector<ofxTrackedUser*> ofxUserGenerator::getFoundUsers() {
+	std::vector<ofxTrackedUser*> found;
+	std::vector<ofxTrackedUser*>::iterator it = tracked_users.begin();
+	while(it != tracked_users.end()) {
+		if( (*it)->is_found) {
+			found.push_back(*it);
+		}			
+		++it;
+	}
+	return found;
+}
+
+
+
+
 // Update the tracked users, should be called each frame
 //----------------------------------------
 void ofxUserGenerator::update() {
@@ -328,6 +355,8 @@ void ofxUserGenerator::update() {
 	std::vector<ofxTrackedUser*>::iterator it = tracked_users.begin();
 	while(it != tracked_users.end()) {
 		(*it)->is_tracked = false;
+		(*it)->is_calibrating = false;
+		(*it)->is_found = false;
 		++it;
 	}
 	
@@ -335,10 +364,14 @@ void ofxUserGenerator::update() {
 	XnUserID* users = new XnUserID[num_users];
 	user_generator.GetUsers(users, found_users);
 	for(int i = 0; i < found_users; ++i) {
+		tracked_users.at(i)->id = users[i];
+		tracked_users.at(i)->is_found = true;
+		if(user_generator.GetSkeletonCap().IsCalibrating(users[i])) {	
+			tracked_users.at(i)->is_calibrating = true;
+		}
 		if(user_generator.GetSkeletonCap().IsTracking(users[i])) {	
 			found_user = true;
 			tracked_users.at(i)->is_tracked = true;
-			tracked_users.at(i)->id = users[i];
 			tracked_users.at(i)->updateBonePositions();
 		}
 	}
@@ -347,7 +380,7 @@ void ofxUserGenerator::update() {
 }
 
 // Draw all users.
-//----------------------------------------
+//----------------------------- -----------
 void ofxUserGenerator::draw() {
 	if(!is_initialized) {
 		return;

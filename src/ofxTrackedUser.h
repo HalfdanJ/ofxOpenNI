@@ -82,6 +82,9 @@ public:
 	XnUserID id;
 
 
+	bool is_tracked;
+	bool is_calibrating;
+	bool is_found;
 private:
 	ofxTrackedUser(ofxUserGenerator* pGenerator, ofxDepthGenerator* pDepthGenerator);
 	
@@ -97,5 +100,5 @@ private:
 
 	friend class ofxUserGenerator;
 	
-	bool is_tracked;
+	
 };
