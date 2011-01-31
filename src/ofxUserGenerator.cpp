@@ -132,6 +132,27 @@ bool ofxUserGenerator::setup(ofxOpenNIContext* pContext, ofxDepthGenerator* pDep
 		return false;
 	}
 	
+	XnLicense * liceses;
+	XnUInt32 count;
+	
+	pContext->getXnContext().EnumerateLicenses(liceses, count);
+	if(count == 0){
+		cout<<"Add license for NITE"<<endl;
+		XnLicense license;
+		
+		string s = "0KOIk2JeIBYClPWVnMoRKn5cdY4=";
+		char *a= license.strKey;
+		a[s.size()] = 0;
+		memcpy(a,s.c_str(),s.size());
+		
+		s = "PrimeSense";
+		char *b= license.strVendor;
+		b[s.size()] = 0;
+		memcpy(b,s.c_str(),s.size());
+		
+		pContext->getXnContext().AddLicense(license);
+	}
+	
 		
 	depth_generator = pDepthGenerator;
 	context			= pContext;
@@ -263,7 +284,7 @@ void ofxUserGenerator::drawScene(){
 			}		
 			
 			if (*depth != 0){	
-				float d =  *depth/15.0;
+				float d =  *depth/16.0;
 				green = d * Colors[nColorID][0]; 
 				red = d * Colors[nColorID][1];
 				blue = d * Colors[nColorID][2];

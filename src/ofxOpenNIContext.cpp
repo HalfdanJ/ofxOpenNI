@@ -187,7 +187,8 @@ void ofxOpenNIContext::enableLogging() {
 // Update all nodes, should be call in the ofTestApp::update()
 //----------------------------------------
 void ofxOpenNIContext::update(){
-	XnStatus nRetVal = context.WaitAnyUpdateAll();	
+//	XnStatus nRetVal = context.WaitAnyUpdateAll();	
+	XnStatus nRetVal = context.WaitNoneUpdateAll();
 	
 }
 
