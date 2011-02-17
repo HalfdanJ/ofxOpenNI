@@ -18,11 +18,11 @@ public:
 	
 	xn::DepthGenerator& getXnDepthGenerator();
 	
-	
+	unsigned char * depth_pixels;
+
 private:
 	xn::DepthGenerator depth_generator;
 	ofTexture depth_texture;
-	unsigned char * depth_pixels;
 	int depth_coloring;
 	float max_depth;
 	

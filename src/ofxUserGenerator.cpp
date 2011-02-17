@@ -138,6 +138,8 @@ bool ofxUserGenerator::setup(ofxOpenNIContext* pContext, ofxDepthGenerator* pDep
 	pContext->getXnContext().EnumerateLicenses(liceses, count);
 	if(count == 0){
 		cout<<"Add license for NITE"<<endl;
+		pContext->addLicense("PrimeSense", "0KOIk2JeIBYClPWVnMoRKn5cdY4=");
+		/*
 		XnLicense license;
 		
 		string s = "0KOIk2JeIBYClPWVnMoRKn5cdY4=";
@@ -150,7 +152,7 @@ bool ofxUserGenerator::setup(ofxOpenNIContext* pContext, ofxDepthGenerator* pDep
 		b[s.size()] = 0;
 		memcpy(b,s.c_str(),s.size());
 		
-		pContext->getXnContext().AddLicense(license);
+		pContext->getXnContext().AddLicense(license);*/
 	}
 	
 		
@@ -220,6 +222,8 @@ bool ofxUserGenerator::setup(ofxOpenNIContext* pContext, ofxDepthGenerator* pDep
 	scene_pixels = new unsigned char[640 * 480 * 4];
 	memset(scene_pixels, 0, 640 * 480 * 4 * sizeof(unsigned char));
 	
+	maxDist = depth_generator->getXnDepthGenerator().GetDeviceMaxDepth();
+	
 	return true;
 }
 
@@ -284,10 +288,10 @@ void ofxUserGenerator::drawScene(){
 			}		
 			
 			if (*depth != 0){	
-				float d =  *depth/16.0;
-				green = d * Colors[nColorID][0]; 
-				red = d * Colors[nColorID][1];
-				blue = d * Colors[nColorID][2];
+				float d =  1-(float)*depth/maxDist;
+				green = 255 * d * Colors[nColorID][0]; 
+				red = 255 * d * Colors[nColorID][1];
+				blue = 255 * d * Colors[nColorID][2];
 			}
 					
 			texture[0] = red;

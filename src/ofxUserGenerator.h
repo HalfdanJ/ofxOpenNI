@@ -52,7 +52,8 @@ private:
 	
 	ofTexture scene_texture;
 	unsigned char * scene_pixels;
-
+	
+	float maxDist;
 	
 	bool is_initialized;
 	bool found_user;
