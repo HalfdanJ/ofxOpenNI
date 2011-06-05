@@ -3,5 +3,6 @@
 #include "ofxUserGenerator.h"
 #include "ofxTrackedUser.h"
 #include "ofxImageGenerator.h"
+#include "ofxIRGenerator.h"
 #include "ofxOpenNIRecorder.h"
 #include "ofxOpenNIXML.h"

@@ -67,8 +67,7 @@ bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
 	XnStatus result = XN_STATUS_OK;	
 	
 	// check if the USER generator exists.
-	result = pContext->getXnContext()
-					.FindExistingNode(XN_NODE_TYPE_DEPTH, depth_generator);
+	result = pContext->getXnContext().FindExistingNode(XN_NODE_TYPE_DEPTH, depth_generator);
 	SHOW_RC(result, "Find depth generator");
 	if(result != XN_STATUS_OK) {
 		result = depth_generator.Create(pContext->getXnContext());
