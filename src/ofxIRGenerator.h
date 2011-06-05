@@ -15,6 +15,7 @@ public:
 	xn::IRGenerator& getXnIRGenerator();
 
     unsigned char* image_pixels;
+    ofTexture * getTexture();
     
     float levelsLow, levelsHigh;
     
