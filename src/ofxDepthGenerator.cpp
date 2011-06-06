@@ -44,7 +44,11 @@ ofxDepthGenerator::ofxDepthGenerator(){
 	CreateRainbowPallet();	
 	depth_coloring = 2;
 	updateTexture = false;
+    deviceInfoChar = NULL;
+    deviceInstanceName = NULL;
+    connected = false;
 }
+
 
 bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
 	if(!pContext->isInitialized()) {
@@ -56,33 +60,56 @@ bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
 	// When the context is using a recording we need to fetch the depth generator.
 	// --------------------------------------------------------------------------
 	/*
-	if(!pContext->isUsingRecording()) {
-		XnStatus result = depth_generator.Create(pContext->getXnContext());
-		CHECK_RC(result, "Creating depth generator using recording");
-	}
-	else {
-		pContext->getDepthGenerator(this);
-	}
+     if(!pContext->isUsingRecording()) {
+     XnStatus result = depth_generator.Create(pContext->getXnContext());
+     CHECK_RC(result, "Creating depth generator using recording");
+     }
+     else {
+     pContext->getDepthGenerator(this);
+     }
 	 */
-	XnStatus result = XN_STATUS_OK;	
-	
-	// check if the USER generator exists.
-	result = pContext->getXnContext().FindExistingNode(XN_NODE_TYPE_DEPTH, depth_generator);
-	SHOW_RC(result, "Find depth generator");
-	if(result != XN_STATUS_OK) {
-		result = depth_generator.Create(pContext->getXnContext());
-		SHOW_RC(result, "Create depth generator");
-		if(result != XN_STATUS_OK) {			
-			return false;
-		}
-	}	
-	
+	XnStatus result = XN_STATUS_OK;		
+    xn::Query query;
+    
+    if(deviceInstanceName == NULL){
+        //The instance name is not set, so lets search for one
+        xn::NodeInfoList device_node_info_list;         
+        result = pContext->getXnContext().EnumerateProductionTrees(XN_NODE_TYPE_DEVICE, NULL, device_node_info_list); 
+        if (result != XN_STATUS_OK) { 
+            printf("enumerating depth generators failed. Reason: %s\n", xnGetStatusString (result)); 
+            return -1; 
+        } else { 
+            for (xn::NodeInfoList::Iterator nodeIt =device_node_info_list.Begin(); nodeIt != device_node_info_list.End(); ++nodeIt) { 
+                xn::NodeInfo deviceInfo = *nodeIt;
+                const xn::NodeInfo& info = *nodeIt; 
+                if(deviceInfoChar == NULL || std::strcmp(info.GetCreationInfo(), deviceInfoChar) == 0){
+                    result = pContext->getXnContext().CreateProductionTree(deviceInfo);
+                    if(result == XN_STATUS_OK){
+                        deviceInfoChar = info.GetCreationInfo();
+                        query.AddNeededNode(deviceInfo.GetInstanceName());
+                        break;
+                    }
+                }
+            } 
+        } 
+    } else {
+        query.AddNeededNode(deviceInstanceName);
+    }
+    
+    
+    result = depth_generator.Create(pContext->getXnContext(),&query);
+    deviceInstanceName = depth_generator.GetInfo().GetInstanceName();
+    SHOW_RC(result, "Create depth generator");
+    if(result != XN_STATUS_OK) {			
+        return false;
+    }
+    
 	
 	ofLog(OF_LOG_VERBOSE, "Depth camera inited");
 	
 	
 	//Set the input to VGA (standard is QVGA wich is not supported on the Kinect)
-
+    
 	XnMapOutputMode map_mode; 
 	map_mode.nXRes = XN_VGA_X_RES; 
 	map_mode.nYRes = XN_VGA_Y_RES;
@@ -95,8 +122,9 @@ bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
 	depth_texture.allocate(map_mode.nXRes, map_mode.nYRes, GL_RGBA);		
 	depth_pixels = new unsigned char[map_mode.nXRes * map_mode.nYRes * 4];
 	memset(depth_pixels, 0, map_mode.nXRes * map_mode.nYRes * 4 * sizeof(unsigned char));
-		
-	depth_generator.StartGenerating();	
+    
+	depth_generator.StartGenerating();
+	connected = true;
 	return true;
 	
 }
@@ -106,12 +134,14 @@ void ofxDepthGenerator::setMirrored(bool m){
 }
 
 void ofxDepthGenerator::draw(float x, float y, float w, float h){
-	if(updateTexture){
-		generateTexture();
-		updateTexture = false;
-	}
-	glColor3f(1,1,1);
-	depth_texture.draw(x, y, w, h);	
+    if(connected){
+        if(updateTexture){
+            generateTexture();
+            updateTexture = false;
+        }
+        glColor3f(1,1,1);
+        depth_texture.draw(x, y, w, h);	
+    }
 }
 
 void ofxDepthGenerator::update(){

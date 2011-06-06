@@ -4,7 +4,7 @@
 
 class ofxImageGenerator {
 public:
-	ofxImageGenerator(){}
+	ofxImageGenerator();
 	
 	bool setup(ofxOpenNIContext* pContext);
 
@@ -14,6 +14,9 @@ public:
 	
 	xn::ImageGenerator& getXnImageGenerator();
 	
+    //Used to specify the device specefic char (for multi kinect support)
+    const char* deviceInfoChar;
+
 private:
 	xn::ImageGenerator image_generator;
 	ofTexture image_texture;

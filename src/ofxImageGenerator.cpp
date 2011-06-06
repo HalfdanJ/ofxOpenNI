@@ -1,5 +1,10 @@
 #include "ofxImageGenerator.h"
  
+ofxImageGenerator::ofxImageGenerator(){
+    deviceInfoChar = nil;
+}
+
+
 void ofxImageGenerator::generateTexture(){
 	xn::ImageMetaData imd;
 	image_generator.GetMetaData(imd);	

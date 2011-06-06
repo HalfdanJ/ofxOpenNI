@@ -1,12 +1,16 @@
 #include "ofxIRGenerator.h"
  
+ofxIRGenerator::ofxIRGenerator(){
+    deviceInfoChar = NULL;
+    deviceInstanceName = NULL;
+}
+
 void ofxIRGenerator::generateTexture(){
 	xn::IRMetaData imd;
 	ir_generator.GetMetaData(imd);	
 	const XnGrayscale16Pixel* pImage = imd.Data();
 
     float size = levelsHigh - levelsLow;
-    
 	for(int i=0;i<imd.XRes()*imd.YRes();i++){
         image_pixels[i] = 255.0*ofClamp((pImage[i]- levelsLow*1022)/size, 0,1022)/1022.0;
     }
@@ -23,9 +27,40 @@ bool ofxIRGenerator::setup(ofxOpenNIContext* pContext) {
 	if(!pContext->isInitialized()) {
 		return false;
 	}
-	
+    
+    levelsLow = 0.0;
+    levelsHigh = 1.0;
+
+    XnStatus result = XN_STATUS_OK;		
+    xn::Query query;
+    
+    if(deviceInstanceName == NULL){
+        //The instance name is not set, so lets search for one
+        xn::NodeInfoList device_node_info_list;         
+        result = pContext->getXnContext().EnumerateProductionTrees(XN_NODE_TYPE_DEVICE, NULL, device_node_info_list); 
+        if (result != XN_STATUS_OK) { 
+            printf("enumerating depth generators failed. Reason: %s\n", xnGetStatusString (result)); 
+            return -1; 
+        } else { 
+            for (xn::NodeInfoList::Iterator nodeIt =device_node_info_list.Begin(); nodeIt != device_node_info_list.End(); ++nodeIt) { 
+                xn::NodeInfo deviceInfo = *nodeIt;
+                const xn::NodeInfo& info = *nodeIt; 
+                if(deviceInfoChar == NULL || std::strcmp(info.GetCreationInfo(), deviceInfoChar) == 0){
+                    result = pContext->getXnContext().CreateProductionTree(deviceInfo);
+                    if(result == XN_STATUS_OK){
+                        deviceInfoChar = info.GetCreationInfo();
+                        query.AddNeededNode(deviceInfo.GetInstanceName());
+                        break;
+                    }
+                }
+            } 
+        } 
+    } else {
+        query.AddNeededNode(deviceInstanceName);
+    }
+    
 	//Create image generator
-	XnStatus result = ir_generator.Create(pContext->getXnContext());
+	result = ir_generator.Create(pContext->getXnContext());
 	
 	if (result != XN_STATUS_OK){
 		printf("Setup Image Camera failed: %s\n", xnGetStatusString(result));
@@ -47,13 +82,10 @@ bool ofxIRGenerator::setup(ofxOpenNIContext* pContext) {
 		return true;
 	}		
 
-    levelsLow = 0.0;
-    levelsHigh = 1.0;
+
 }
 
-xn::IRGenerator& ofxIRGenerator::getXnIRGenerator(){
-	return ir_generator;
-}
+
 
 ofTexture * ofxIRGenerator::getTexture(){
     return &image_texture;

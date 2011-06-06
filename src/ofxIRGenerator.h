@@ -4,7 +4,7 @@
 
 class ofxIRGenerator {
 public:
-	ofxIRGenerator(){}
+	ofxIRGenerator();
 	
 	bool setup(ofxOpenNIContext* pContext);
 
@@ -19,6 +19,10 @@ public:
     
     float levelsLow, levelsHigh;
     
+    //Used to specify the device specefic char (for multi kinect support)
+    const char* deviceInfoChar;
+    const char* deviceInstanceName;
+
 private:
 	xn::IRGenerator ir_generator;
 	ofTexture image_texture;
