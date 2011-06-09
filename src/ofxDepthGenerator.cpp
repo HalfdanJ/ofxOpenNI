@@ -71,7 +71,7 @@ bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
 	XnStatus result = XN_STATUS_OK;		
     xn::Query query;
     
-    if(deviceInstanceName == NULL){
+//    if(deviceInstanceName == NULL){
         //The instance name is not set, so lets search for one
         xn::NodeInfoList device_node_info_list;         
         result = pContext->getXnContext().EnumerateProductionTrees(XN_NODE_TYPE_DEVICE, NULL, device_node_info_list); 
@@ -86,15 +86,16 @@ bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
                     result = pContext->getXnContext().CreateProductionTree(deviceInfo);
                     if(result == XN_STATUS_OK){
                         deviceInfoChar = info.GetCreationInfo();
+                        cout<<deviceInfoChar<<endl;
                         query.AddNeededNode(deviceInfo.GetInstanceName());
                         break;
                     }
                 }
             } 
         } 
-    } else {
+    /*} else {
         query.AddNeededNode(deviceInstanceName);
-    }
+    }*/
     
     
     result = depth_generator.Create(pContext->getXnContext(),&query);

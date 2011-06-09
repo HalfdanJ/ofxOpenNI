@@ -11,8 +11,13 @@ void ofxIRGenerator::generateTexture(){
 	const XnGrayscale16Pixel* pImage = imd.Data();
 
     float size = levelsHigh - levelsLow;
-	for(int i=0;i<imd.XRes()*imd.YRes();i++){
-        image_pixels[i] = 255.0*ofClamp((pImage[i]- levelsLow*1022)/size, 0,1022)/1022.0;
+    
+    float scale1 = 255.0/1022.0;
+    float scale2 = levelsLow*1022.0;
+    
+#pragma omp parallel for 
+	for(int i=imd.XRes()*imd.YRes()-1;i>=0;i--){
+        image_pixels[i] = scale1*ofClamp((pImage[i]- scale2)/size, 0,1022);
     }
 	image_texture.loadData(image_pixels,imd.XRes(), imd.YRes(), GL_LUMINANCE);		
 }
