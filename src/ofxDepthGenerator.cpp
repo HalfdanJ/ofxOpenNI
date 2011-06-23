@@ -77,7 +77,7 @@ bool ofxDepthGenerator::setup(ofxOpenNIContext* pContext) {
         result = pContext->getXnContext().EnumerateProductionTrees(XN_NODE_TYPE_DEVICE, NULL, device_node_info_list); 
         if (result != XN_STATUS_OK) { 
             printf("enumerating depth generators failed. Reason: %s\n", xnGetStatusString (result)); 
-            return -1; 
+            return false; 
         } else { 
             for (xn::NodeInfoList::Iterator nodeIt =device_node_info_list.Begin(); nodeIt != device_node_info_list.End(); ++nodeIt) { 
                 xn::NodeInfo deviceInfo = *nodeIt;

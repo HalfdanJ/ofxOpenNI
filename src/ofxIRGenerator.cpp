@@ -15,9 +15,13 @@ void ofxIRGenerator::generateTexture(){
     float scale1 = 255.0/1022.0;
     float scale2 = levelsLow*1022.0;
     
-#pragma omp parallel for 
+//#pragma omp parallel for 
 	for(int i=imd.XRes()*imd.YRes()-1;i>=0;i--){
-        image_pixels[i] = scale1*ofClamp((pImage[i]- scale2)/size, 0,1022);
+        if(pImage[i] > 255)
+            image_pixels[i] = 0;
+        else 
+            image_pixels[i] = pImage[i];
+//        image_pixels[i] = scale1*ofClamp((pImage[i]- scale2)/size, 0,1022);
     }
 	image_texture.loadData(image_pixels,imd.XRes(), imd.YRes(), GL_LUMINANCE);		
 }
