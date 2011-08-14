@@ -19,6 +19,7 @@ public:
 	xn::DepthGenerator& getXnDepthGenerator();
 	
 	unsigned char * depth_pixels;
+    ofTexture * getTexture();
     
     //Used to specify the device specefic char (for multi kinect support)
     const char* deviceInfoChar;

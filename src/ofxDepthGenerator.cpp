@@ -254,3 +254,8 @@ void ofxDepthGenerator::generateTexture(){
 	
 	depth_texture.loadData((unsigned char *)depth_pixels,dmd.XRes(), dmd.YRes(), GL_RGBA);	
 }
+
+
+ofTexture * ofxDepthGenerator::getTexture(){
+    return &depth_texture;
+}
