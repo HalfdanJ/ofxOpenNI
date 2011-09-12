@@ -23,9 +23,38 @@ bool ofxImageGenerator::setup(ofxOpenNIContext* pContext) {
 	if(!pContext->isInitialized()) {
 		return false;
 	}
-	
+    
+    XnStatus result = XN_STATUS_OK;		
+    xn::Query query;
+    
+    //if(deviceInstanceName == NULL){
+        //The instance name is not set, so lets search for one
+        xn::NodeInfoList device_node_info_list;         
+        result = pContext->getXnContext().EnumerateProductionTrees(XN_NODE_TYPE_DEVICE, NULL, device_node_info_list); 
+        if (result != XN_STATUS_OK) { 
+            printf("enumerating depth generators failed. Reason: %s\n", xnGetStatusString (result)); 
+            return -1; 
+        } else { 
+            for (xn::NodeInfoList::Iterator nodeIt =device_node_info_list.Begin(); nodeIt != device_node_info_list.End(); ++nodeIt) { 
+                xn::NodeInfo deviceInfo = *nodeIt;
+                const xn::NodeInfo& info = *nodeIt; 
+                if(deviceInfoChar == NULL || std::strcmp(info.GetCreationInfo(), deviceInfoChar) == 0){
+                    result = pContext->getXnContext().CreateProductionTree(deviceInfo);
+                    if(result == XN_STATUS_OK){
+                       // deviceInfoChar = info.GetCreationInfo();
+                        query.AddNeededNode(deviceInfo.GetInstanceName());
+                        break;
+                    }
+                }
+            } 
+        } 
+   /* } else {
+        query.AddNeededNode(deviceInstanceName);
+    }
+	*/
+    
 	//Create image generator
-	XnStatus result = image_generator.Create(pContext->getXnContext());
+	result = image_generator.Create(pContext->getXnContext(), &query);
 	
 	if (result != XN_STATUS_OK){
 		printf("Setup Image Camera failed: %s\n", xnGetStatusString(result));

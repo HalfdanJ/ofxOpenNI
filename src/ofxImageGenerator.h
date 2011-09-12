@@ -16,11 +16,12 @@ public:
 	
     //Used to specify the device specefic char (for multi kinect support)
     const char* deviceInfoChar;
+    unsigned char* image_pixels;
+
 
 private:
 	xn::ImageGenerator image_generator;
 	ofTexture image_texture;
-	unsigned char* image_pixels;
 	int image_coloring;
 };
 
