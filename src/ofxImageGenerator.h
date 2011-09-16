@@ -5,6 +5,8 @@
 class ofxImageGenerator {
 public:
 	ofxImageGenerator();
+    
+    bool connected;
 	
 	bool setup(ofxOpenNIContext* pContext);
 

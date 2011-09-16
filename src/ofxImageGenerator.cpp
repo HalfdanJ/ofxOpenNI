@@ -2,24 +2,30 @@
  
 ofxImageGenerator::ofxImageGenerator(){
     deviceInfoChar = nil;
+    connected = false;
 }
 
 
 void ofxImageGenerator::generateTexture(){
+    if(connected){
 	xn::ImageMetaData imd;
 	image_generator.GetMetaData(imd);	
 	const XnUInt8* pImage = imd.Data();
 	memcpy(image_pixels, pImage, sizeof(unsigned char) * imd.XRes() * imd.YRes() * 3);
 	image_texture.loadData(image_pixels,imd.XRes(), imd.YRes(), GL_RGB);		
+    }
 }
 
 void ofxImageGenerator::draw(float x, float y, float w, float h){
+    if(connected){
 	generateTexture();
 	glColor3f(1,1,1);
 	image_texture.draw(x, y, w, h);		
+    }
 }
 
 bool ofxImageGenerator::setup(ofxOpenNIContext* pContext) {
+    connected = false;
 	if(!pContext->isInitialized()) {
 		return false;
 	}
@@ -73,6 +79,7 @@ bool ofxImageGenerator::setup(ofxOpenNIContext* pContext) {
 		image_pixels = new unsigned char[map_mode.nXRes * map_mode.nYRes * 3];
 		
 		image_generator.StartGenerating();		
+        connected = true;
 		return true;
 	}		
 }

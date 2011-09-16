@@ -22,6 +22,8 @@ public:
     //Used to specify the device specefic char (for multi kinect support)
     const char* deviceInfoChar;
     const char* deviceInstanceName;
+    
+    bool connected;
 
 private:
 	xn::IRGenerator ir_generator;

@@ -3,9 +3,11 @@
 ofxIRGenerator::ofxIRGenerator(){
     deviceInfoChar = NULL;
     deviceInstanceName = NULL;
+    connected = false;
 }
 
 void ofxIRGenerator::generateTexture(){
+    if(connected){
 	xn::IRMetaData imd;
 	ir_generator.GetMetaData(imd);	
 	const XnGrayscale16Pixel* pImage = imd.Data();
@@ -24,15 +26,19 @@ void ofxIRGenerator::generateTexture(){
 //        image_pixels[i] = scale1*ofClamp((pImage[i]- scale2)/size, 0,1022);
     }
 	image_texture.loadData(image_pixels,imd.XRes(), imd.YRes(), GL_LUMINANCE);		
+    }
 }
 
 void ofxIRGenerator::draw(float x, float y, float w, float h){
+    if(connected){
 	generateTexture();
 	glColor3f(1,1,1);
 	image_texture.draw(x, y, w, h);		
+    }
 }
 
 bool ofxIRGenerator::setup(ofxOpenNIContext* pContext) {
+    connected = false;
 	if(!pContext->isInitialized()) {
 		return false;
 	}
@@ -88,6 +94,8 @@ bool ofxIRGenerator::setup(ofxOpenNIContext* pContext) {
 		image_pixels = new unsigned char[map_mode.nXRes * map_mode.nYRes];
 		
 		ir_generator.StartGenerating();		
+        
+        connected = true;
 		return true;
 	}		
 
